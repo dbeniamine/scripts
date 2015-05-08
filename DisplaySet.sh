@@ -39,7 +39,7 @@ defxinmod="yes"
 # Default position when docked
 dockPos="below"
 # Default position when not docked
-noDockPos="above"
+noDockPos="right-of"
 
 do_help(){
     echo "Usage $0 [-dhim]"
@@ -58,7 +58,13 @@ set_default_pos()
         return # DefaultPos already manually set
     fi
     # Are we docked ?
-    dock=$(cat $(find /sys/devices/platform/ -name dock*))
+    file=$(find /sys/devices/platform/ -name dock*)
+    if [ ! -z "$file" ]
+    then
+        dock=$(cat $file)
+    else
+        dock=0
+    fi
     if [ $dock -eq 0 ]
     then
         defaultPos=$noDockPos
@@ -218,6 +224,7 @@ done
 set_xrandr_cmd
 set_feh_cmd
 # Apply commands
-set -x
 $cmd
+# Wait for settings to be applied
+sleep 2
 $fehcmd
