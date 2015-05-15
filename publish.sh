@@ -60,7 +60,7 @@ do
     then
         cp -rv $f pub/$(dirname $f)
     else
-        cp -v $f pub/$f
+        cp -v $f pub/$(basename $f)
     fi
 done < $public_file
 cd pub
