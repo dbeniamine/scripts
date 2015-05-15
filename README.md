@@ -10,7 +10,7 @@ Many of them are used by my [configuration files](https://github.com/dbeniamine/
 
     One of the script I use the most often: it is a very quick and efficient
     way to configure external monitor. It uses the next script to prompt the
-    user (used in my .i3/config file).
+    user (used in my [.i3/config](https://github.com/dbeniamine/conf/blob/master/i3/config) file).
 
 +   prompt_user.sh
  
@@ -36,7 +36,7 @@ Many of them are used by my [configuration files](https://github.com/dbeniamine/
 +   dmenu_run.sh
 
     Replace demnu, include my path (source bashrc) and set nice colors (used in
-    my .i3/config file).
+    my [.i3/config](https://github.com/dbeniamine/conf/blob/master/i3/config) file).
 
 +   gvim.sh
 
@@ -46,22 +46,22 @@ Many of them are used by my [configuration files](https://github.com/dbeniamine/
 +   i3_exit_menu.sh
 
     A nice exit menu for i3, using either systemctl if available or dbus to
-    run the commands (used in my .i3/config file).
+    run the commands (used in my [.i3/config](https://github.com/dbeniamine/conf/blob/master/i3/config) file).
 
 +   maildir_size.sh
 
     A pretty display of a maildir size for Mutt or other CLI mail clients
-    (used in my muttrc).
+    (used in my [muttrc](https://github.com/dbeniamine/conf/blob/master/muttrc) ).
 
 +   mutt_bgrun
 
     Run stuff in background for mutt, this one is not from me but from Gary A.
-    Johnson (used in my muttrc).
+    Johnson (used in my [muttrc](https://github.com/dbeniamine/conf/blob/master/muttrc)).
 
 +   nextWorskpaceNumber.sh
 
     Helper for i3 to find the next available workspace number (used in my
-    .i3/config file).
+    [.i3/config](https://github.com/dbeniamine/conf/blob/master/i3/config) file).
 
 +   publish.sh
 
@@ -69,7 +69,7 @@ Many of them are used by my [configuration files](https://github.com/dbeniamine/
 
 +   xbacklight.sh
 
-    Set backlight using xbackligh (used in my .i3/config file).
+    Set backlight using xbackligh (used in my [.i3/config](https://github.com/dbeniamine/conf/blob/master/i3/config) file).
 
 +   xinput_mouse_settings.sh
 
