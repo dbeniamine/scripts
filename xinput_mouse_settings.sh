@@ -18,6 +18,13 @@
 # Ugly settings for mouse input, must be called each time a mouse is added
 # (using udev rules for instance)
 
+reverse_scrolling()
+{
+    list=$(xinput get-button-map $1)
+    list=${list/ 4 5/ 5 4 }
+    xinput set-button-map $1 $list
+}
+
 #Use Wheel emulation for all mouse with button 3
 xinput --list | grep "id=" | cut -d "=" -f 2 | sed -e 's/^\([0-9]*\).*$/\1/'\
     | while read id
@@ -28,6 +35,7 @@ do
         xinput --set-prop $id "Evdev Wheel Emulation" 1
         xinput --set-prop $id "Evdev Wheel Emulation Button" 3
         xinput --set-prop $id "Evdev Wheel Emulation Axes" 6 7 4 5
+        reverse_scrolling $id
     fi
 done
 
@@ -39,4 +47,6 @@ id=$(xinput list | grep TouchPad | cut -d "=" -f 2 \
 xinput --set-prop $id "Synaptics Tap Action" 0 0 0 0 1 2
 # Allow scrolling with two finger vertically and horizontally
 xinput --set-prop $id "Synaptics Two-Finger Scrolling" 1 1
-
+xinput --set-prop $id "Synaptics Palm Detection" 1
+xinput --set-prop $id "Synaptics Palm Dimensions" 10 0
+reverse_scrolling $id
