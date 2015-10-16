@@ -72,8 +72,8 @@ create_archive()
 
 list_upgradable_packages()
 {
-    #/usr/bin/aptitude update > /dev/null 2>&1
-    #res=$(/usr/bin/aptitude search ~U)
+    /usr/bin/aptitude update > /dev/null 2>&1
+    res=$(/usr/bin/aptitude search ~U)
     if [ -z "$res" ]
     then
         res="All packages are up to date"
@@ -102,7 +102,7 @@ $(do_cmd uptime)
 
 ### IP
 
-$(do_cmd /home/david/scripts/thorin_admin/getip.sh)
+$(do_cmd $(dirname $0)/getip.sh)
 
 ### Is system running ?
 
@@ -139,6 +139,16 @@ $(do_cmd free -h)
 ### Disk
 
 $(do_cmd df -h)
+
+### CPU
+
+#### Freq
+
+$(do_cmd cpufreq-info)
+
+#### Sensors
+
+$(do_cmd sensors)
 
 ## Contrab
 
@@ -196,7 +206,7 @@ Content-Type: text/html; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 
 $(generate_mail_content html)
---$BOUNDARY2
+--$BOUNDARY2--
 --$BOUNDARY
 MIME-Version: 1.0
 Content-Disposition: attachment; filename="$archiveFile"
@@ -204,7 +214,7 @@ Content-Transfer-Encoding: base64
 Content-Type: $ATT_MIMETYPE; name="$archiveFile"
 
 $ATT_ENCODED
---$BOUNDARY
+--$BOUNDARY--
 
 EOF
 }
