@@ -27,7 +27,7 @@
 interactive=false
 dmenu=false
 # Path to script (of user choice)
-PREFIX=$HOME/scripts
+PREFIX=$(dirname $0)
 
 # Default wallpaper (set with feh command)
 background=$HOME/Wallpapers/default.jpg
@@ -224,7 +224,9 @@ done
 set_xrandr_cmd
 set_feh_cmd
 # Apply commands
+echo $cmd
 $cmd
 # Wait for settings to be applied
 sleep 2
+echo $fehcmd
 $fehcmd
