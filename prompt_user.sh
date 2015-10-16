@@ -36,25 +36,16 @@ if $3
 then
     USER_CHOICE=$(echo -e "$1" | dmenu -sb darkgreen -p "$2" -i )
 else
-    echo "$2"
-    cpt=1
-    for line in $(echo -e $1)
-    do
-        echo "$cpt : $line"
-        cpt=$(( $cpt +1 ))
+    OFS=$IFS
+    IFS=$" "
+    choices=$(echo $1 | sed 's/\\n/ /g')
+    IFS=$OFS
+    echo $2
+    select USER_CHOICE in $choices; do
+        test ! -z $USER_CHOICE && \
+            test ! -z "$(echo "$choices" | grep "$USER_CHOICE")" && break;
+        echo "Invalid choice !"
     done
-    cpt=$(($cpt -1))
-    read USER_CHOICE
-    while [[ ! "$USER_CHOICE" =~ ^[0-9]+$ ]] || [ $USER_CHOICE -gt $cpt ] \
-        || [ $USER_CHOICE  -le 0 ]
-    do
-        echo "Wrong choice $USER_CHOICE"
-        echo "Please enter a number between 1 and $cpt"
-        read USER_CHOICE
-    done
-    sedcmd="$USER_CHOICE"'q;d'
-    USER_CHOICE=$(echo -e $1 | sed $sedcmd)
 fi
-
 export USER_CHOICE=$USER_CHOICE
 
