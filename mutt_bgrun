@@ -109,6 +109,11 @@ cp "$file" "$tmpfile"
 
 (
     "$viewer" $options "$tmpfile" > /dev/null 2>&1
+    # Wait for the viewer end (usefull for xdg-open)
+    while [ $(ps aux | grep $tmpfile | wc -l) -gt 1 ]
+    do
+        sleep 60
+    done
     rm -f "$tmpfile"
     rmdir "$tmpdir"
 ) &
