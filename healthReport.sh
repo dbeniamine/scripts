@@ -78,7 +78,7 @@ list_upgradable_packages()
     then
         res="All packages are up to date"
     fi
-    echo $res
+    echo $res | sed 's/ i /\ni /g'
 }
 # Execute the given command and print it as code
 do_cmd()
