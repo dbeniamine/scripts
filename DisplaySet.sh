@@ -41,6 +41,9 @@ dockPos="below"
 # Default position when not docked
 noDockPos="right-of"
 
+# Command to execute after setting Displays
+postcmd="mate-panel --replace &"
+
 do_help(){
     echo "Usage $0 [-dhim]"
     echo "-i        Interactive mode"
@@ -230,3 +233,4 @@ $cmd
 sleep 2
 echo $fehcmd
 $fehcmd
+$postcmd
