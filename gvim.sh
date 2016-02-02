@@ -16,5 +16,5 @@
 #  0. You just DO WHAT THE FUCK YOU WANT TO.
 
 # Execute vim in a terminal (usefull for it's all text plugin (firefox))
-exec /usr/bin/x-terminal-emulator -e  " bash -c \"TERM=xterm-256color /usr/bin/vim $@\""
+exec /usr/bin/x-terminal-emulator -t "VIM" -e  " bash -c \"TERM=xterm-256color /usr/bin/vim $@\""
 
