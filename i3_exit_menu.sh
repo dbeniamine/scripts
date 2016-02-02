@@ -48,8 +48,8 @@ fi
 
 # This settings can/ must be adapted to your configuration
 CHOICES='LockScreen\nExit\nSuspend\nHibernate\nPoweroff\nReboot'
-LOCKCMD="xscreensaver-command -lock"
-EXITCMD="i3-msg exit"
+LOCKCMD="mate-screensaver-command  --lock"
+EXITCMD="mate-session-save --logout-dialog"
 PROMPT="Exit i3 ?"
 PREFIX=$HOME/scripts
 
@@ -73,9 +73,8 @@ else
         /org/freedesktop/UPower org.freedesktop.UPower"
     ARGUMENTS=([Suspend]="$UPower.Suspend" [Hibernate]="$UPower.Hibernate" \
         [Poweroff]="$ConsoleKit.Stop" [Reboot]="$ConsoleKit.Restart")
-    # A lock command is required for dbus suspend / hibernate
-    PREACTIONS=([Suspend]=$LOCKCMD [Hibernate]=$LOCKCMD)
 fi
+PREACTIONS=([Suspend]=$LOCKCMD [Hibernate]=$LOCKCMD)
 
 
 # Ask the user
@@ -90,7 +89,7 @@ case "$USER_CHOICE" in
         $LOCKCMD
         ;;
     "Suspend" | "Hibernate" | "Poweroff" | "Reboot")
-        ${PREACTIONS[$USER_CHOICE]} & $CMD ${ARGUMENTS[$USER_CHOICE]}
+        (sleep 1; $CMD ${ARGUMENTS[$USER_CHOICE]} ) & ${PREACTIONS[$USER_CHOICE]}
         ;;
     *)
         exit 1
