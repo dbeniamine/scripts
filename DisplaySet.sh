@@ -42,7 +42,7 @@ dockPos="below"
 noDockPos="right-of"
 
 # Command to execute after setting Displays
-postcmd="mate-panel --replace &"
+postcmd="mate-panel --replace"
 
 do_help(){
     echo "Usage $0 [-dhim]"
