@@ -24,9 +24,19 @@ fi
 
 # My mails are in $PREFIX/Account/Folder/...
 PREFIX="$HOME/Documents/mail/$1"
-# ugly
-TMPDIR="$HOME/.offlineimap/$(basename $0)/$1"
+name=$(basename $0 .sh)
+# Create temporary directory
+get_temp_dir(){
+    if [ -z "$TMPDIR" ]
+    then
+        TMPDIR="/tmp"
+    fi
+    dir=$(find $TMPDIR -name "$name*" 2> /dev/null)
+    [ -z "$dir" ] && dir=$(mktemp -p $TMPDIR -d $name-XXX)
+    echo $dir
+}
 
+# Decode headers
 decode(){
     /usr/bin/perl -pe 'use MIME::Words(decode_mimewords);$_=decode_mimewords($_);'
 }
@@ -38,8 +48,10 @@ get_headers(){
     done
 }
 
-mkdir -p $TMPDIR
-touch $TMPDIR/seen
+basedir=$(get_temp_dir)
+tmpdir=$basedir/$1
+mkdir -p $tmpdir
+touch $tmpdir/seen
 
 msg="New mail(s) for $1:\n"
 count=0
@@ -49,10 +61,10 @@ do
     # Check if mail already known
     for f in $(find $dir/new -type f)
     do
-        if [ -z "$(grep $f $TMPDIR/seen)" ]
+        if [ -z "$(grep $f $tmpdir/seen)" ]
         then
             # Mark seen
-            echo $f >> $TMPDIR/seen
+            echo $f >> $tmpdir/seen
             # Update message
             count=$((count +1))
             msg="$msg\n$(get_headers $f)"
