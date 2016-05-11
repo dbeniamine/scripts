@@ -17,18 +17,28 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Usage: $0 mailboxfile account name
-if [ -z "$2" ]
+if [ -z "$3" ]
 then
-    echo "usage $0 mailboxfile accountname"
+    echo "usage $0 mailboxesfile maildir accountfield"
     exit 1
 fi
 input=$1
-acc=$2
-# Reads mailbox file and return only directorys belonging to account
-echo 'unmailboxes *'
-res=$(sed 's/ /\n/g' $input | grep -e "\(^[^\"]\|$acc\)")
-# Print only if some mailboxes are found
-if [[ $(echo $res | sed 's/ /\n/g' | wc -l) -gt 1 ]]
-then
-    echo $res
-fi
+dir=$2
+field=$3
+acc=""
+res="mailboxes"
+LINES=$(sed -e 's/ /\n/g' -e 's/"\([^"]*\)"/\1/g' .mutt/mailboxes)
+for line in $(echo "$LINES")
+do
+    if [[ "$line" =~ $dir ]]
+    then
+        nacc=$(echo $line | cut -d / -f $field)
+        if [ "$nacc" != "$acc" ]
+        then
+            acc=$nacc
+            res="$res \"+---- $(echo $acc | tr \"[a-z]\" \"[A-Z]\") ----\""
+        fi
+        res="$res \"$line\""
+    fi
+done
+echo "$res"
