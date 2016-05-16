@@ -16,6 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# This script should be called after an IMAP sync (for instance with the
+# postsync-hook on offlineimaprc
+# It does 2 things:
+#   1. Send an unified notification with all new mail for one account
+#   2. Update the email search index (by default with mu index
+
 if [ -z "$1" ]
 then
     echo "usage $0 account"
@@ -24,6 +30,9 @@ fi
 
 # My mails are in $PREFIX/Account/Folder/...
 PREFIX="$HOME/Documents/mail/$1"
+# Command used to update email index (for searches)
+INDEXCMD="mu index --maildir=$PREFIX --muhome=${PREFIX/mail/mu}"
+
 name=$(basename $0 .sh)
 # Create temporary directory
 get_temp_dir(){
@@ -53,6 +62,7 @@ tmpdir=$basedir/$1
 mkdir -p $tmpdir
 touch $tmpdir/seen
 
+# Prepare notification
 msg="New mail(s) for $1:\n"
 count=0
 # Count mails per directory
@@ -79,3 +89,5 @@ then
     notify-send -a "OfflineImap" -i "mail-unread" "$(echo -e $msg)"
     echo -e $msg
 fi
+# Update e-mail index
+$INDEXCMD
