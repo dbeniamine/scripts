@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# This script requires the MIME::Words perl library
+# On debian: apt-get install libmime-tools-perl
 # This script should be called after an IMAP sync (for instance with the
 # postsync-hook on offlineimaprc
 # It does 2 things:
@@ -34,13 +36,14 @@ PREFIX="$HOME/Documents/mail/$1"
 INDEXCMD="mu index --maildir=$PREFIX --muhome=${PREFIX/mail/mu}"
 
 name=$(basename $0 .sh)
+
+if [ -z "$TMPDIR" ]
+then
+    TMPDIR=$(dirname $(mktemp -t -u XXX))
+fi
 # Create temporary directory
 get_temp_dir(){
-    if [ -z "$TMPDIR" ]
-    then
-        TMPDIR="/tmp"
-    fi
-    dir=$(find $TMPDIR -name "$name*" 2> /dev/null)
+    dir=$(find $TMPDIR -type d -name "$name*" 2> /dev/null)
     [ -z "$dir" ] && dir=$(mktemp -p $TMPDIR -d $name-XXX)
     echo $dir
 }
@@ -86,8 +89,13 @@ done
 if [[ $count -gt 0 ]]
 then
     export DISPLAY=:0; export XAUTHORITY=~/.Xauthority;
-    notify-send -a "OfflineImap" -i "mail-unread" "$(echo -e $msg)"
-    echo -e $msg
+    notify-send -a "OfflineImap" -i "mail-unread" \
+        "$(echo -e $msg)"
+    # Ring terminal bell if fifo available
+    for fifo in $(find $TMPDIR -type p -name "$name*" 2>/dev/null)
+    do
+        echo -e "\a" > $fifo
+    done
 fi
 # Update e-mail index
 $INDEXCMD
