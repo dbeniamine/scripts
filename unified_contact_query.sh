@@ -25,33 +25,83 @@
 # By default it uses pc_query than mu_cfind, but it can easily be adapted to
 # other tools
 
-if [ -z $2 ]
-then
-    echo "Usage $0 query muhome"
-    echo "Search contacts matching query, using pc_query and mu cfind"
-    exit 1
-fi
+muhome="$HOME/mu"
+main_cmd=pq_cmd_plain
+additional_cmd=mu_cmd_plain
+filter_cmd=pq_filter_plain
 
-query="$1"
-echo "Searching for '$query' ..."
 
-# Initial query
-main_cmd="pc_query -m"
-# Additional find
-additional_cmd="mu cfind --format=mutt-ab --muhome=$2"
-# Function to format additional command
-additional_cmd_format(){
-    grep '@' | sed -e 's/\(.*\t.*\)$/\1mu-cfind/' -e 's/\t\t/\t \t/'
+# pc_query query functions
+pq_cmd_mutt(){
+    pc_query -m $@ | grep '@'
 }
 
+pq_cmd_plain(){
+    pc_query $@
+}
+
+# Functions extract addresses from pq results
+pq_filter_mutt(){
+    awk '{print $1}'
+}
+
+pq_filter_plain(){
+    grep "EMAIL" | sed 's/^.*: //'
+}
+
+# mu cfind query functions
+mu_cmd_mutt(){
+    mu cfind --format=mutt-ab --muhome=$muhome $@ | grep '@' \
+        | sed -e 's/\(.*\t.*\)$/\1mu-cfind/' -e 's/\t\t/\t \t/'
+}
+mu_cmd_plain(){
+    mu cfind --format=plain --muhome=$muhome $@ | \
+        sed -e 's/^\([^@]*\) \(\S*@\S*\)$/\nNAME: \1\nEMAIL (mu-cfind): \2/' \
+        -e 's/^\(\S*\)$/\nNAME: \1\nEMAIL (mu-cfind): \1/'
+}
+
+usage(){
+    echo "Usage $(basename $0) [options] query"
+    echo "  Options:"
+    echo "      -h              Display this help and exit"
+    echo "      -H dir          Set muhome dir, default $muhome"
+    echo "      -m              Show mail only and format for mutt"
+}
+
+while getopts "hmH:" opt
+do
+    case $opt in
+        h)
+            usage
+            exit
+            ;;
+        H)
+            muhome="$OPTARG"
+            ;;
+        m)
+            main_cmd=pq_cmd_mutt
+            additional_cmd=mu_cmd_mutt
+            filter_cmd=pq_filter_mutt
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+done
+shift $(($OPTIND -1 ))
+echo $muhome
+
+query="$@"
+echo "Searching for '$query' ..."
+
 # Retrieve initial contact list
-RESULTS=$($main_cmd $query | grep '@' )
+RESULTS=$($main_cmd $query | sed 1d)
 # Extract known addresses and prepare regex for grep
-ADDR=$(echo "$RESULTS"  | awk '{print $1}' | tr '\n' '|' \
+ADDR=$(echo "$RESULTS"  | $filter_cmd | tr '\n' '|' \
     | sed -e 's/|/\\|/g' -e 's/\\|$//')
 # Get additional command and format results
-ADDITIONAL_RESULTS=$($additional_cmd $query | grep -v "($ADDR)" \
-    | additional_cmd_format)
+ADDITIONAL_RESULTS=$($additional_cmd $query | grep -v "($ADDR)" )
 # Display results
 echo "$RESULTS"
 echo "$ADDITIONAL_RESULTS"
