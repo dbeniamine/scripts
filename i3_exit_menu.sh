@@ -21,36 +21,51 @@
 # A nice exit menu for i3 based on dmenu
 usage()
 {
-    echo "$0 [-nodmenu]"
-    echo "dmenu:    a boolean switch to use or not dmenu default: true"
+    echo "$0 [options]"
+    echo "-D        Do not use dmenu"
+    echo "-l        Lock screen"
+    echo "-e        Exit session"
+    echo "-s        Suspend"
+    echo "-p        Power off"
+    echo "-h        Hibernate"
 }
-# set -x
 
-if [ -z "$1" ]
-then
-    # Use dmenu only if available and xserver is started
-    xset -q  > /dev/null  2>&1 && which dmenu > /dev/null  2>&1
-    if [  $? -eq 0 ]
-    then
-        dmenu=true
-    else
-        dmenu=false
-    fi
-else
-    if [ "$1" == "true" ] || [ "$1" == "false" ]
-    then
-        dmenu=$1
-    else
-        usage
-        exit 1
-    fi
-fi
+USER_CHOICE=""
+# Use dmenu only if available and xserver is started
+dmenu=$(xset -q  > /dev/null  2>&1 && which dmenu > /dev/null  2>&1 && true || false)
+while getopts ":Dlesph" opt; do
+    case $opt in
+        D)
+            dmenu=false
+            ;;
+        l)
+            USER_CHOICE="LockScreen"
+            ;;
+        e)
+            USER_CHOICE="Exit"
+            ;;
+        s)
+            USER_CHOICE="Suspend"
+            ;;
+        h)
+            USER_CHOICE="Hibernate"
+            ;;
+        p)
+            USER_CHOICE="Poweroff"
+            ;;
+        *)
+            echo "Invalid option $opt"
+            usage
+            exit 1
+            ;;
+    esac
+done
 
 # This settings can/ must be adapted to your configuration
 CHOICES='LockScreen\nExit\nSuspend\nHibernate\nPoweroff\nReboot'
-LOCKCMD="mate-screensaver-command  --lock"
-EXITCMD="mate-session-save --logout-dialog"
-PROMPT="Exit i3 ?"
+LOCKCMD="xflock4"
+EXITCMD="xfce4-session-logout --fast --logout"
+PROMPT="Exit session ?"
 PREFIX=$HOME/scripts
 
 # Actions corresponding to the user choice
@@ -78,7 +93,10 @@ PREACTIONS=([Suspend]=$LOCKCMD [Hibernate]=$LOCKCMD)
 
 
 # Ask the user
-source $PREFIX/prompt_user.sh "$CHOICES" "$PROMPT" $dmenu
+if [ -z "$USER_CHOICE" ]
+then
+    source $PREFIX/prompt_user.sh "$CHOICES" "$PROMPT" $dmenu
+fi
 
 # Actually do stuff
 case "$USER_CHOICE" in
