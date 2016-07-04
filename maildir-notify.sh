@@ -60,6 +60,20 @@ get_headers(){
     done
 }
 
+ring_bell(){
+    echo -e "\a" > $1 &
+    pid=$!
+    sleep 1
+    kill -9 $pid
+    if [ $? -eq 0 ]
+    then
+        # The kill doesn't failed => the fifo is unbounded, we need to remove
+        # it
+        rm $1
+    fi
+}
+
+
 basedir=$(get_temp_dir)
 tmpdir=$basedir/$1
 mkdir -p $tmpdir
@@ -94,7 +108,7 @@ then
     # Ring terminal bell if fifo available
     for fifo in $(find $TMPDIR -type p -name "$name*" 2>/dev/null)
     do
-        echo -e "\a" > $fifo
+        ring_bell $fifo
     done
 fi
 # Update e-mail index
