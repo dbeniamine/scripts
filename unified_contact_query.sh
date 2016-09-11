@@ -33,11 +33,11 @@ filter_cmd=pq_filter_plain
 
 # pc_query query functions
 pq_cmd_mutt(){
-    pc_query -m $@ | grep '@'
+    pc_query -m $@  2>/dev/null | grep '@'
 }
 
 pq_cmd_plain(){
-    pc_query $@
+    pc_query $@ 2>/dev/null
 }
 
 # Functions extract addresses from pq results
@@ -51,11 +51,11 @@ pq_filter_plain(){
 
 # mu cfind query functions
 mu_cmd_mutt(){
-    mu cfind --format=mutt-ab --muhome=$muhome $@ | grep '@' \
+    mu cfind --format=mutt-ab --muhome=$muhome $@ 2>/dev/null | grep '@' \
         | sed -e 's/\(.*\t.*\)$/\1mu-cfind/' -e 's/\t\t/\t \t/'
 }
 mu_cmd_plain(){
-    mu cfind --format=plain --muhome=$muhome $@ | \
+    mu cfind --format=plain --muhome=$muhome $@  2>/dev/null | \
         sed -e 's/^\([^@]*\) \(\S*@\S*\)$/\nNAME: \1\nEMAIL (mu-cfind): \2/' \
         -e 's/^\(\S*\)$/\nNAME: \1\nEMAIL (mu-cfind): \1/'
 }
@@ -90,19 +90,18 @@ do
     esac
 done
 shift $(($OPTIND -1 ))
-echo $muhome
+
+echo "searching '$query' ..."
 
 query="$@"
-echo "Searching for '$query' ..."
 
 # Retrieve initial contact list
-RESULTS=$($main_cmd $query | sed 1d)
+RESULTS=$($main_cmd $query)
 # Extract known addresses and prepare regex for grep
 ADDR=$(echo "$RESULTS"  | $filter_cmd | tr '\n' '|' \
     | sed -e 's/|/\\|/g' -e 's/\\|$//')
 # Get additional command and format results
-ADDITIONAL_RESULTS=$($additional_cmd $query | grep -v "($ADDR)" )
+ADDITIONAL_RESULTS=$($additional_cmd $query | grep -v "($ADDR)")
 # Display results
 echo "$RESULTS"
 echo "$ADDITIONAL_RESULTS"
-
