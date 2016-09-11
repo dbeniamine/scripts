@@ -57,7 +57,7 @@ if $use_fifo
 then
     fifo=$(mktemp -u -t maildir-notify-XXXXXX)
     mkfifo -m 600 $fifo
-    watch_fifo="while true; do cat < $fifo; done &"
+    watch_fifo="tail -f $fifo &"
 fi
 
 $term_emulator --title "$Title" -e  /bin/bash -c \
