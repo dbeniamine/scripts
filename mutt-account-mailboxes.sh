@@ -20,6 +20,11 @@
 if [ -z "$3" ]
 then
     echo "usage $0 mailboxesfile maildir accountfield"
+    echo "  Inserts ACCOUNT_NAME between eachd mail accounts"
+    echo -e "  Sorts mailboxes: Inbox first, then aplhabetically\n"
+    echo "mailboxesfile:    File that contains list of mailboxes, usually  ~/.mutt/mailboxes"
+    echo "maildir:          Path to your maildir accounts"
+    echo "accountfield:     Field of the account (i.e: 3 for /home/mail/account)"
     exit 1
 fi
 input=$1
@@ -27,8 +32,8 @@ dir=$2
 field=$3
 acc=""
 res="mailboxes"
-LINES=$(sed -e 's/ /\n/g' -e 's/"\([^"]*\)"/\1/g' .mutt/mailboxes)
-for line in $(echo "$LINES")
+LINES=$(sed -e 's/ /\n/g' -e 's/"\([^"]*\)"/\1/g' $input)
+for line in $(echo -e "$LINES")
 do
     if [[ "$line" =~ $dir ]]
     then
@@ -37,8 +42,32 @@ do
         then
             acc=$nacc
             res="$res \"+---- $(echo $acc | tr \"[a-z]\" \"[A-Z]\") ----\""
+            pos="before_inbox"
+            moved=""
         fi
-        res="$res \"$line\""
+        # Look for INBOX directories
+        if [ "$pos" == "before_inbox" ]
+        then
+            if [[ "$line" =~ .*INBOX ]]
+            then
+                pos="inbox"
+                res="$res \"$line\""
+            else
+                moved="$moved \"$line\""
+            fi
+        elif [[ "$pos" == "inbox" ]]
+        then
+            # Wait until we end with INBOX.*
+            if [[ ! "$line" =~ .*INBOX ]]
+            then
+                pos="after"
+                res="$res $moved"
+                moved=""
+            fi
+            res="$res \"$line\""
+        else
+            res="$res \"$line\""
+        fi
     fi
 done
 echo "$res"
